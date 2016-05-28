@@ -1,0 +1,73 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.tempsure.charlieapp.SetUpPhase"
+    android:background="#ed575e">
+
+    <EditText
+        android:layout_marginTop="50dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/editTextNumberPNP"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:hint="PNP Number" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/editTextNumberDSWD"
+        android:layout_below="@+id/editTextNumberPNP"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:hint="DSWD Number" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:layout_below="@+id/editTextNumberDSWD"
+        android:id="@+id/editTextNumberRelativeOne"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:hint="Relative Number" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:layout_below="@+id/editTextNumberRelativeOne"
+        android:id="@+id/editTextNumberRelativeTwo"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:hint="Relative Number" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text|textPersonName"
+        android:ems="10"
+        android:layout_below="@+id/editTextNumberRelativeTwo"
+        android:id="@+id/editName"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:hint="Name" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:ems="10"
+        android:layout_below="@+id/editName"
+        android:id="@+id/editTwitterUsername"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:hint="Twitter name (*)" />
+    <include layout="@layout/content_set_up_phase"/>
+
+</RelativeLayout>
