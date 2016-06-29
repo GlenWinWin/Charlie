@@ -9,6 +9,8 @@ import android.location.Geocoder;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
@@ -19,15 +21,24 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Locale;
 
 public class PhoneCallReceiver extends BroadcastReceiver {
+
     ReturnHost rhost = new ReturnHost();
     String host = rhost.getHost();
-    private String url = "http://"+host+"/twitter/twitter.php";
+    private String post_url = "http://"+host+"/twitter/twitter.php";
     GPSTracker gps;
     StringBuilder strAddress = new StringBuilder();
     MediaPlayer mp = null;
@@ -63,57 +74,54 @@ public class PhoneCallReceiver extends BroadcastReceiver {
                     for(int i=0; i<fetchedAddress.getMaxAddressLineIndex(); i++) {
                         strAddress.append(fetchedAddress.getAddressLine(i)).append("\n");
                     }
-                    post(longitude,latitude,context);
-
                 }  else Toast.makeText(context,"gggg", Toast.LENGTH_SHORT).show();
-            }
-            catch (IOException e) { //
-                e.printStackTrace();
                 post(longitude,latitude,context);
             }
-
-
+            catch (IOException e) { //
+                //e.printStackTrace();
+                new AsyncTask<Double,Double,Double>(){
+                    @Override
+                    protected Double doInBackground(Double... doubles) {
+                        SharedPreferences.Editor editor = sharedpreferences.edit();
+                        String ifHasSent = sharedpreferences.getString("ifHasSent","");
+                        if(ifHasSent.toString().equals("yes")) {
+                            post(longitude, latitude, context);
+                            editor.putString("ifHasSent","no");
+                            editor.commit();
+                        }
+                        return null;
+                    }
+                }.execute();
+            }
         }else{
-            // can't get location
-            // GPS or Network is not enabled
-            // Ask user to enable GPS/network in settings
-            gps.showSettingsAlert();
+            Toast.makeText(context,"No Connection",Toast.LENGTH_LONG).show();
         }
     }
     private void post(Double longi,Double lati,Context ctx){
-        String PNP = sharedpreferences.getString("pnp_number","");
-        String DSWD = sharedpreferences.getString("dswd_number","");
-        String name = sharedpreferences.getString("name","");
-        String twitterUsername = sharedpreferences.getString("twitterUsername","");
-        SmsManager smsManager = SmsManager.getDefault();
-        ConnectivityManager connManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        if(mWifi.isConnected() && longi != 0 && lati != 0){
-            smsManager.sendTextMessage("63"+PNP.substring(1), null, "To PNP : " + name +" might need some help here's her location http://www.google.com/maps/place/"+longi+","+lati, null, null);
-            smsManager.sendTextMessage("63"+DSWD.substring(1), null, "To DSWD : " + name +" might need some help here's her location http://www.google.com/maps/place/"+longi+","+lati, null, null);
-        }
-        else{
-            smsManager.sendTextMessage("63"+PNP.substring(1), null, "To PNP : " + name +" might need some help.", null, null);
-            smsManager.sendTextMessage("63"+DSWD.substring(1), null, "To DSWD : " + name +" might need some help.", null, null);
-        }
-        InputStream isr = null;
-        try{
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost;
-            if(twitterUsername != null){
-                httppost = new HttpPost(url+"?postThis="+strAddress.toString().replace("\n",",").replace(" ",",")+"&twitterName="+twitterUsername);
+            String PNP = sharedpreferences.getString("pnp_number", "");
+            String DSWD = sharedpreferences.getString("dswd_number", "");
+            String name = sharedpreferences.getString("name", "");
+            SmsManager smsManager = SmsManager.getDefault();
+            ConnectivityManager connManager = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            if (mWifi.isConnected() && longi != 0 && lati != 0) {
+                smsManager.sendTextMessage("63" + PNP.substring(1), null, "To PNP : " + name + " might need some help here's her location http://www.google.com/maps/place/" + longi + "," + lati, null, null);
+                smsManager.sendTextMessage("63" + DSWD.substring(1), null, "To DSWD : " + name + " might need some help here's her location http://www.google.com/maps/place/" + longi + "," + lati, null, null);
+            } else {
+                smsManager.sendTextMessage("63" + PNP.substring(1), null, "To PNP : " + name + " might need some help.", null, null);
+                smsManager.sendTextMessage("63" + DSWD.substring(1), null, "To DSWD : " + name + " might need some help.", null, null);
             }
-            else{
-                httppost = new HttpPost(url+"?postThis="+strAddress.toString().replace("\n",",").replace(" ",",")+"&twitterName="+name);
-            }
-            //YOUR PHP SCRIPT ADDRESS
-            HttpResponse response = httpclient.execute(httppost);
-            HttpEntity entity = response.getEntity();
+            InputStream isr = null;
+            try {
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPost httppost = new HttpPost(post_url + "?postThis=ggg");
+                HttpResponse response = httpclient.execute(httppost);
+                HttpEntity entity = response.getEntity();
                 isr = entity.getContent();
-
-        }
-        catch(Exception e){
-            Log.e("log_tag", "Error in http connection " + e.toString());
-        }
+                Log.d("success", "Cool");
+             } catch (Exception ed) {
+                Log.e("log_tag", "Error in http connection " + ed.toString());
+                Log.d("error", "Error");
+            }
     }
 }

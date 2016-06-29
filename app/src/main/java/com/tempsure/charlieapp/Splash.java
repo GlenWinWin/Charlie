@@ -23,10 +23,14 @@ public class Splash extends AppCompatActivity {
         String relative_1 = sharedpreferences.getString("relative_1","");
         String relative_2 = sharedpreferences.getString("relative_2","");
         String name = sharedpreferences.getString("name","");
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString("ifHasSent","yes");
+        editor.commit();
         if(!(dswd_number.equals("")) && (!pnp_number.equals("")) && (!relative_1.equals("")) && (!relative_2.equals(""))
                 && (!name.equals(""))){
             Intent intent = new Intent(Splash.this, MainActivity.class);
             startActivity(intent);
+            finish();
         }
         final ImageView imageView = (ImageView)findViewById(R.id.imageView);
         final Animation animation = AnimationUtils.loadAnimation(getBaseContext(), R.anim.rotate);
